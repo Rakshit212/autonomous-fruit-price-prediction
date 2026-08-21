@@ -1,0 +1,24 @@
+# YOLO & Computer Vision (Fruit Counting)
+ultralytics==8.0.0 # Or latest compatible version
+opencv-python-headless
+torch
+torchvision
+
+# Data Manipulation & Machine Learning (Price Prediction & Plantation Recommendation)
+pandas
+numpy
+scikit-learn
+xgboost
+prophet
+statsmodels
+
+# Visualization
+matplotlib
+seaborn
+
+# Web App / API / Dashboard
+streamlit
+fastapi
+uvicorn
+python-multipart
+requests

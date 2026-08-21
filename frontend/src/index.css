@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+}
+
+:root {
+  /* Soft neutral background (off-white) */
+  --background: #f8faf9;
+  /* Dark green text */
+  --foreground: #142e1d;
+
+  /* Card backgrounds - white */
+  --card: #ffffff;
+  --card-foreground: #142e1d;
+
+  --popover: #ffffff;
+  --popover-foreground: #142e1d;
+
+  /* Primary Brand: Deep Green */
+  --primary: #1e5631;
+  --primary-foreground: #ffffff;
+
+  /* Secondary: Soft muted green */
+  --secondary: #e6f0e9;
+  --secondary-foreground: #1e5631;
+
+  --muted: #eef2ef;
+  --muted-foreground: #607967;
+
+  --accent: #dcfce7;
+  --accent-foreground: #14532d;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Thin borders, subtle neutral */
+  --border: #e2e8e4;
+  --input: #e2e8e4;
+  --ring: #1e5631;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+@media print {
+  @page { size: auto; margin: 0mm; }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: white;
+  }
+}

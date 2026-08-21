@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+yolo_env/
+
+# Python environment/cache
+pip_cache/
+*.egg-info/
+
+# Environment/secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+credentials.json
+service-account*.json
+
+# IDE
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+.cache/
+
+# Training/cache
+model_cache/
+runs/
+wandb/
+mlruns/
+
+# Python/ML caches
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large generated model/training artifacts
+model_training/
+weights/
+*.onnx
+*.engine
+
+# YOLO Models
+*.pt
+
+# Exclude large dataset directory
+Blueberry_flower_dataset/
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
