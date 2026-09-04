@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import plant_analysis, auth
+from app.api.routes import plant_analysis, auth, disease_detection
 import uvicorn
 
 app = FastAPI(
@@ -13,13 +13,14 @@ app = FastAPI(
 # Configure CORS for the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],
+    allow_origins=[settings.FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(plant_analysis.router, prefix=f"{settings.API_V1_STR}/plant-analysis", tags=["Plant Analysis"])
+app.include_router(disease_detection.router, prefix=f"{settings.API_V1_STR}/disease-detection", tags=["Disease Detection"])
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
 
 @app.get("/")

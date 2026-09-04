@@ -16,4 +16,8 @@ class PlantAnalysisResult(BaseModel):
 
 class PlantAnalysisResponse(BaseModel):
     success: bool
-    data: PlantAnalysisResult
+    status: str = "analyzed"
+    isPlant: bool = True
+    plantConfidence: Optional[float] = None
+    message: Optional[str] = None
+    data: Optional[PlantAnalysisResult] = None

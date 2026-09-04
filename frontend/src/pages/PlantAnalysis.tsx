@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { UploadCloud, Image as ImageIcon, X, Loader2, Save, RefreshCw, CheckCircle2, TrendingUp } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, X, Loader2, Save, RefreshCw, CheckCircle2, TrendingUp, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -44,7 +44,7 @@ const simulateDetectionAPI = async (imageFile: File): Promise<DetectionResult> =
         confidence: 0.92,
         annotated_image: URL.createObjectURL(imageFile) // Using original image as placeholder for annotated image
       });
-    }, 2500); // 2.5s simulated processing time
+    }, 1800);
   });
 };
 
@@ -53,6 +53,8 @@ export function PlantAnalysis() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<string>("");
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +78,7 @@ export function PlantAnalysis() {
   };
 
   const handleFileSelect = (file: File) => {
+    setValidationError(null);
     if (file.type.startsWith("image/")) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
@@ -87,29 +90,59 @@ export function PlantAnalysis() {
     setSelectedImage(null);
     setPreviewUrl(null);
     setResult(null);
+    setValidationError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const analyzeImage = async () => {
     if (!selectedImage) return;
+
+    if (selectedImage.size > 5 * 1024 * 1024) {
+      setValidationError("Image is too large. Maximum allowed size is 5 MB.");
+      return;
+    }
     
     setIsAnalyzing(true);
-    setProgress(0);
-    
-    // Simulate progress bar
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 95 ? 95 : prev + 15));
-    }, 300);
+    setValidationError(null);
+    setProgress(15);
+    setLoadingStep("Validating image...");
 
     try {
+      const formData = new FormData();
+      formData.append("file", selectedImage);
+      formData.append("crop", "Blueberry");
+
+      setLoadingStep("Checking whether this is a plant image...");
+      setProgress(40);
+
+      const res = await fetch("/api/plant-analysis/upload-and-analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
+
+      const backendData = await res.json();
+      if (!backendData.isPlant) {
+        setValidationError(backendData.message || "We couldn't identify a plant in this image. Please upload a clear photo of a plant leaf, stem, fruit, flower, or crop.");
+        setResult(null);
+        return;
+      }
+
+      setLoadingStep("Plant verified. Detecting growth stages...");
+      setProgress(75);
+
       const data = await simulateDetectionAPI(selectedImage);
-      clearInterval(interval);
       setProgress(100);
       setResult(data);
     } catch (error) {
       console.error("Analysis failed:", error);
+      setValidationError("We couldn't complete the analysis. Please try again with a clear plant image.");
     } finally {
-      setTimeout(() => setIsAnalyzing(false), 400); // Give progress bar time to show 100%
+      setIsAnalyzing(false);
+      setLoadingStep("");
     }
   };
 
@@ -129,6 +162,21 @@ export function PlantAnalysis() {
           Upload plant imagery to detect growth stages and forecast fruit formation using the YOLO model.
         </p>
       </div>
+
+      {validationError && (
+        <Alert variant="destructive" className="border-amber-500/40 bg-amber-50/30 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200">
+          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <AlertTitle className="font-bold">⚠️ Unrecognized Image</AlertTitle>
+          <AlertDescription className="mt-1">
+            {validationError}
+            <div className="mt-3">
+              <Button variant="outline" size="sm" onClick={removeImage}>
+                Upload Another Image
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* LEFT PANEL: UPLOAD */}
@@ -198,7 +246,7 @@ export function PlantAnalysis() {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
+                    {loadingStep || "Analyzing..."}
                   </>
                 ) : result ? (
                   <>
@@ -221,8 +269,8 @@ export function PlantAnalysis() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-primary">AI Analysis in Progress</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Detecting plant growth stages using YOLOv8...</p>
+                  <h3 className="font-semibold text-primary">Two-Stage AI Pipeline</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{loadingStep || "Analyzing plant growth stages..."}</p>
                 </div>
                 <Progress value={progress} className="h-2" />
               </CardContent>

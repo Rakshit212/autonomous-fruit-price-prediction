@@ -5,3 +5,5 @@ python-multipart
 python-dotenv
 pydantic-settings
 email-validator
+pillow
+numpy
